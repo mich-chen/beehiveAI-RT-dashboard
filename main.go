@@ -18,7 +18,8 @@ var upgrader = websocket.Upgrader{
 
 // have a server to track all connections for broadcasting
 type Server struct {
-	conns map[*websocket.Conn]*websocket.Conn
+	conns    map[*websocket.Conn]*websocket.Conn
+	messages messagesStore
 }
 
 // initiate a new Server
@@ -53,8 +54,11 @@ func (s *Server) readLoop(conn *websocket.Conn) {
 			break
 		}
 
-		// log message
+		// log recceived message
 		log.Printf("Received message: %s", message)
+
+		// store messages and format to write
+		s.messages.addMessage(message)
 
 		// write messages and broadcast
 		s.broadcast(message)
@@ -73,6 +77,7 @@ func (s *Server) broadcast(message []byte) {
 
 func main() {
 	server := newServer()
+	server.messages = newMessagesMap()
 	http.HandleFunc("/websocket", server.handleWebsocket)
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
