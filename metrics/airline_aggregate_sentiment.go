@@ -36,13 +36,13 @@ func (aggregated AirlineAggregatedSentiment) AggregateSentiment(msg *messages.Me
 
 	switch msg.AirlineSentiment {
 	case "positive":
-		sentiment.Positive += 1
+		sentiment.Positive++
 		break
 	case "negative":
-		sentiment.Negative += 1
+		sentiment.Negative++
 		break
 	case "neutral":
-		sentiment.Neutral += 1
+		sentiment.Neutral++
 		break
 	default:
 		break

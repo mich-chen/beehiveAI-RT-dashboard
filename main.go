@@ -24,6 +24,7 @@ type Server struct {
 	conns                map[*websocket.Conn]*websocket.Conn
 	messages             messages.MessagesStore
 	aggregatedSentiments metrics.AirlineAggregatedSentiment
+	dateDistributions    metrics.DateDistribution
 }
 
 // initiate a new Server
@@ -72,6 +73,9 @@ func (s *Server) readLoop(conn *websocket.Conn) {
 		s.aggregatedSentiments.AggregateSentiment(messageData)
 		log.Println("main.go: aggregated in server", s.aggregatedSentiments)
 
+		s.dateDistributions.AggregateDateDistribution(messageData)
+		log.Println("main.go: date distributions in server", s.dateDistributions)
+
 		// format final message
 
 		// write messages and broadcast
@@ -93,6 +97,7 @@ func main() {
 	server := newServer()
 	server.messages = messages.NewMessagesMap()
 	server.aggregatedSentiments = metrics.NewAggregatedSentiment()
+	server.dateDistributions = metrics.NewDateDistribution()
 	http.HandleFunc("/websocket", server.handleWebsocket)
 	log.Fatal(http.ListenAndServe(":3001", nil))
 }
