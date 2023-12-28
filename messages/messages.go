@@ -7,8 +7,8 @@ import (
 )
 
 type MessagesStore map[int]struct {
-	data      *MessageData
-	timestamp int64
+	Data      *MessageData
+	Timestamp int64
 }
 
 type MessageData struct {
@@ -42,11 +42,10 @@ func (messages MessagesStore) AddMessage(msg []byte) {
 	// add new message and timestamp to message store
 	timestamp := time.Now().UnixNano()
 	messages[msgData.TweetId] = struct {
-		data      *MessageData
-		timestamp int64
+		Data      *MessageData
+		Timestamp int64
 	}{
-		data:      &msgData,
-		timestamp: timestamp,
+		Data:      &msgData,
+		Timestamp: timestamp,
 	}
-	log.Println("message store:", messages)
 }
