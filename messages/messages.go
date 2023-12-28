@@ -1,4 +1,4 @@
-package main
+package messages
 
 import (
 	"encoding/json"
@@ -29,7 +29,7 @@ type messageData struct {
 	UserTimezone              string `json:"userLocation"`
 }
 
-func newMessagesMap() messagesStore {
+func NewMessagesMap() messagesStore {
 	return make(messagesStore)
 }
 

@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+
+	"beehiveAI/messages"
 )
 
 var upgrader = websocket.Upgrader{
@@ -19,7 +21,7 @@ var upgrader = websocket.Upgrader{
 // have a server to track all connections for broadcasting
 type Server struct {
 	conns    map[*websocket.Conn]*websocket.Conn
-	messages messagesStore
+	messages *messages.messagesStore
 }
 
 // initiate a new Server
@@ -77,7 +79,7 @@ func (s *Server) broadcast(message []byte) {
 
 func main() {
 	server := newServer()
-	server.messages = newMessagesMap()
+	server.messages = messages.NewMessagesMap()
 	http.HandleFunc("/websocket", server.handleWebsocket)
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Fatal(http.ListenAndServe(":3001", nil))
 }
