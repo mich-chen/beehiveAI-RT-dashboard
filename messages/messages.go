@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-type messagesStore map[int]struct {
-	data      *messageData
+type MessagesStore map[int]struct {
+	data      *MessageData
 	timestamp int64
 }
 
-type messageData struct {
+type MessageData struct {
 	TweetId                   int    `json:"tweetId"`
 	AirlineSentiment          string `json:"airlineSentiment"`
 	AirlineSentimentConfident int    `json:"airlineSentimentConfidence"`
@@ -29,12 +29,12 @@ type messageData struct {
 	UserTimezone              string `json:"userLocation"`
 }
 
-func NewMessagesMap() messagesStore {
-	return make(messagesStore)
+func NewMessagesMap() MessagesStore {
+	return make(MessagesStore)
 }
 
-func (messages messagesStore) addMessage(msg []byte) {
-	var msgData messageData
+func (messages MessagesStore) AddMessage(msg []byte) {
+	var msgData MessageData
 	if err := json.Unmarshal(msg, &msgData); err != nil {
 		log.Println("JSON unmarshal err:", err)
 	}
@@ -42,7 +42,7 @@ func (messages messagesStore) addMessage(msg []byte) {
 	// add new message and timestamp to message store
 	timestamp := time.Now().UnixNano()
 	messages[msgData.TweetId] = struct {
-		data      *messageData
+		data      *MessageData
 		timestamp int64
 	}{
 		data:      &msgData,
