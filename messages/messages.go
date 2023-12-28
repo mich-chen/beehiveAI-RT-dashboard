@@ -33,19 +33,22 @@ func NewMessagesMap() MessagesStore {
 	return make(MessagesStore)
 }
 
-func (messages MessagesStore) AddMessage(msg []byte) {
+func ParseFromJSON(msg []byte) *MessageData {
 	var msgData MessageData
 	if err := json.Unmarshal(msg, &msgData); err != nil {
 		log.Println("JSON unmarshal err:", err)
 	}
+	return &msgData
+}
 
+func (messages MessagesStore) AddMessage(msg *MessageData) {
 	// add new message and timestamp to message store
 	timestamp := time.Now().UnixNano()
-	messages[msgData.TweetId] = struct {
+	messages[msg.TweetId] = struct {
 		Data      *MessageData
 		Timestamp int64
 	}{
-		Data:      &msgData,
+		Data:      msg,
 		Timestamp: timestamp,
 	}
 }
