@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"beehiveAI/messages"
+	"beehiveAI/metrics"
 )
 
 var upgrader = websocket.Upgrader{
@@ -20,8 +21,9 @@ var upgrader = websocket.Upgrader{
 
 // have a server to track all connections for broadcasting
 type Server struct {
-	conns    map[*websocket.Conn]*websocket.Conn
-	messages *messages.messagesStore
+	conns                map[*websocket.Conn]*websocket.Conn
+	messages             messages.MessagesStore
+	aggregatedSentiments metrics.AirlineAggregatedSentiment
 }
 
 // initiate a new Server
@@ -59,8 +61,18 @@ func (s *Server) readLoop(conn *websocket.Conn) {
 		// log recceived message
 		log.Printf("Received message: %s", message)
 
-		// store messages and format to write
-		s.messages.addMessage(message)
+		// parse received message
+		messageData := messages.ParseFromJSON(message)
+
+		// store messages
+		s.messages.AddMessage(messageData)
+		log.Println("message store:", s.messages)
+
+		// aggregated metrics
+		s.aggregatedSentiments.AggregateSentiment(messageData)
+		log.Println("main.go: aggregated in server", s.aggregatedSentiments)
+
+		// format final message
 
 		// write messages and broadcast
 		s.broadcast(message)
@@ -80,6 +92,7 @@ func (s *Server) broadcast(message []byte) {
 func main() {
 	server := newServer()
 	server.messages = messages.NewMessagesMap()
+	server.aggregatedSentiments = metrics.NewAggregatedSentiment()
 	http.HandleFunc("/websocket", server.handleWebsocket)
 	log.Fatal(http.ListenAndServe(":3001", nil))
 }
