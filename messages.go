@@ -23,6 +23,10 @@ type messageData struct {
 	NegativeReasonGold        string `json:"negativereasonGold"`
 	RetweetCount              int    `json:"retweetCount"`
 	Text                      string `json:"text"`
+	TweetCord                 string `json:"tweetCord"`
+	TweetCreated              string `json:"tweetCreated"`
+	TweetLocation             string `json:"tweetLocation"`
+	UserTimezone              string `json:"userLocation"`
 }
 
 func newMessagesMap() messagesStore {
