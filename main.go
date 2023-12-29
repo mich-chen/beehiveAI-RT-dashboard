@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -27,11 +28,44 @@ type Server struct {
 	dateDistributions    metrics.DateDistribution
 }
 
+type ResponseMetrics struct {
+	AggregatedSentiments *metrics.AirlineAggregatedSentiment `json:"aggregatedSentiments"`
+	DateDistributions    *metrics.DateDistribution           `json:"dateDistributions"`
+}
+
 // initiate a new Server
 func newServer() *Server {
 	return &Server{
 		conns: make(map[*websocket.Conn]*websocket.Conn),
 	}
+}
+
+func ParseFromJSON(msg []byte) *messages.MessageData {
+	var msgData messages.MessageData
+	if err := json.Unmarshal(msg, &msgData); err != nil {
+		log.Println("JSON unmarshal err:", err)
+	}
+	return &msgData
+}
+
+func ParseToMessage(msgData *messages.MessageData, sentimentsData metrics.AirlineAggregatedSentiment, distributionData metrics.DateDistribution) []byte {
+	var formatted = struct {
+		Message *messages.MessageData `json:"message"`
+		Metrics *ResponseMetrics      `json:"metrics"`
+	}{
+		Message: msgData,
+		Metrics: &ResponseMetrics{
+			AggregatedSentiments: &sentimentsData,
+			DateDistributions:    &distributionData,
+		},
+	}
+	log.Println("main.go: formattedResponse:", formatted)
+
+	responseMsg, err := json.Marshal(formatted)
+	if err != nil {
+		log.Println("JSON marshal err:", err)
+	}
+	return responseMsg
 }
 
 func (s *Server) handleWebsocket(w http.ResponseWriter, r *http.Request) {
@@ -60,10 +94,10 @@ func (s *Server) readLoop(conn *websocket.Conn) {
 		}
 
 		// log recceived message
-		log.Printf("Received message: %s", message)
+		log.Printf("Received message: %s, %T", message, message)
 
 		// parse received message
-		messageData := messages.ParseFromJSON(message)
+		messageData := ParseFromJSON(message)
 
 		// store messages
 		s.messages.AddMessage(messageData)
@@ -77,9 +111,14 @@ func (s *Server) readLoop(conn *websocket.Conn) {
 		log.Println("main.go: date distributions in server", s.dateDistributions)
 
 		// format final message
+		responseMessage := ParseToMessage(
+			messageData,
+			s.aggregatedSentiments,
+			s.dateDistributions,
+		)
 
 		// write messages and broadcast
-		s.broadcast(message)
+		s.broadcast(responseMessage)
 	}
 }
 

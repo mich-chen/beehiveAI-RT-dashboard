@@ -1,8 +1,6 @@
 package messages
 
 import (
-	"encoding/json"
-	"log"
 	"time"
 )
 
@@ -31,14 +29,6 @@ type MessageData struct {
 
 func NewMessagesMap() MessagesStore {
 	return make(MessagesStore)
-}
-
-func ParseFromJSON(msg []byte) *MessageData {
-	var msgData MessageData
-	if err := json.Unmarshal(msg, &msgData); err != nil {
-		log.Println("JSON unmarshal err:", err)
-	}
-	return &msgData
 }
 
 func (messages MessagesStore) AddMessage(msg *MessageData) {
