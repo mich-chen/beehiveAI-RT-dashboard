@@ -1,8 +1,6 @@
 package metrics
 
-import (
-	"beehiveAI/messages"
-)
+import "beehiveAI/messages"
 
 type AirlineAggregatedSentiment map[string]struct {
 	Total    int `json:"total"`
