@@ -12,21 +12,21 @@ type MessagesStore map[int]struct {
 }
 
 type MessageData struct {
-	TweetId                   int    `json:"tweet_id"`
-	AirlineSentiment          string `json:"airline_sentiment"`
-	AirlineSentimentConfident int    `json:"airline_sentiment_confidence"`
+	TweetId                   int    `json:"tweetId"`
+	AirlineSentiment          string `json:"airlineSentiment"`
+	AirlineSentimentConfident int    `json:"airlineSentimentConfidence"`
 	NegativeReason            string `json:"negativereason"`
-	NegativeReasonConfidence  int    `json:"negativereason_confidence"`
+	NegativeReasonConfidence  int    `json:"negativereasonConfidence"`
 	Airline                   string `json:"airline"`
-	AirlineSentimentGold      string `json:"airline_sentiment_gold"`
+	AirlineSentimentGold      string `json:"airlineSentimentGold"`
 	Name                      string `json:"name"`
-	NegativeReasonGold        string `json:"negativereason_gold"`
-	RetweetCount              int    `json:"retweet_count"`
+	NegativeReasonGold        string `json:"negativereasonGold"`
+	RetweetCount              int    `json:"retweetCount"`
 	Text                      string `json:"text"`
-	TweetCord                 string `json:"tweet_cord"`
-	TweetCreated              string `json:"tweet_created"`
-	TweetLocation             string `json:"tweet_location"`
-	UserTimezone              string `json:"user_location"`
+	TweetCord                 string `json:"tweetCord"`
+	TweetCreated              string `json:"tweetCreated"`
+	TweetLocation             string `json:"tweetLocation"`
+	UserTimezone              string `json:"userLocation"`
 }
 
 func NewMessagesMap() MessagesStore {
