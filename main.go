@@ -142,7 +142,6 @@ func (s *Server) broadcast(data *ResponseData) {
 			if err := ws.WriteJSON(data); err != nil {
 				log.Println("Broadcasting write message err:", err)
 				ws.Close()
-				return
 			}
 		}(ws)
 	}
