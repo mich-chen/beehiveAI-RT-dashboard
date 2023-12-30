@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -28,6 +27,11 @@ type Server struct {
 	dateDistributions    metrics.DateDistribution
 }
 
+type ResponseData struct {
+	Messages *messages.MessagesStore `json:"messages"`
+	Metrics  *ResponseMetrics        `json:"metrics"`
+}
+
 type ResponseMetrics struct {
 	AggregatedSentiments *metrics.AirlineAggregatedSentiment `json:"aggregatedSentiments"`
 	DateDistributions    *metrics.DateDistribution           `json:"dateDistributions"`
@@ -40,38 +44,11 @@ func newServer() *Server {
 	}
 }
 
-func ParseFromJSON(msg []byte) *messages.MessageData {
-	var msgData messages.MessageData
-	if err := json.Unmarshal(msg, &msgData); err != nil {
-		log.Println("JSON unmarshal err:", err)
-	}
-	return &msgData
-}
-
-func ParseToMessage(msgData *messages.MessageData, sentimentsData metrics.AirlineAggregatedSentiment, distributionData metrics.DateDistribution) []byte {
-	var formatted = struct {
-		Message *messages.MessageData `json:"message"`
-		Metrics *ResponseMetrics      `json:"metrics"`
-	}{
-		Message: msgData,
-		Metrics: &ResponseMetrics{
-			AggregatedSentiments: &sentimentsData,
-			DateDistributions:    &distributionData,
-		},
-	}
-	log.Println("main.go: formattedResponse:", formatted)
-
-	responseMsg, err := json.Marshal(formatted)
-	if err != nil {
-		log.Println("JSON marshal err:", err)
-	}
-	return responseMsg
-}
-
 func (s *Server) handleWebsocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil) // upgrade the connection from HTTP to websocket to create new connection
 	if err != nil {
 		log.Println("Upgrade err:", err)
+		return
 	}
 	log.Println("Connection Successful!")
 	log.Println("New incoming connection from client: ", conn.RemoteAddr())
@@ -79,13 +56,13 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, r *http.Request) {
 	// add new connection to Server struct
 	s.conns[conn] = conn
 
+	// handle close and removing client connections
+	defer func(conn *websocket.Conn, server *Server) {
+		delete(server.conns, conn)
+	}(conn, s)
 	defer conn.Close()
 
-	// read message loop
-	s.readLoop(conn)
-}
-
-func (s *Server) readLoop(conn *websocket.Conn) {
+	// read messages
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
@@ -93,40 +70,61 @@ func (s *Server) readLoop(conn *websocket.Conn) {
 			break
 		}
 
-		// log recceived message
-		log.Printf("Received message: %s, %T", message, message)
-
-		// parse received message
-		messageData := ParseFromJSON(message)
-
-		// store messages
-		s.messages.AddMessage(messageData)
-		log.Println("message store:", s.messages)
-
-		// aggregated metrics
-		s.aggregatedSentiments.AggregateSentiment(messageData)
-		log.Println("main.go: aggregated in server", s.aggregatedSentiments)
-
-		s.dateDistributions.AggregateDateDistribution(messageData)
-		log.Println("main.go: date distributions in server", s.dateDistributions)
-
-		// format final message
-		responseMessage := ParseToMessage(
-			messageData,
-			s.aggregatedSentiments,
-			s.dateDistributions,
-		)
-
-		// write messages and broadcast
-		s.broadcast(responseMessage)
+		log.Println("/Websocket received message from client: ", message)
 	}
+
+	// broadcast current store of messages when new clients connect
+	responseData := &ResponseData{
+		Messages: &s.messages,
+		Metrics: &ResponseMetrics{
+			AggregatedSentiments: &s.aggregatedSentiments,
+			DateDistributions:    &s.dateDistributions,
+		},
+	}
+
+	s.broadcast(responseData)
 }
 
-func (s *Server) broadcast(message []byte) {
+func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse incoming data
+	var data *messages.MessageData
+	decode := json.NewDecoder(r.Body)
+	decode.DisallowUnknownFields()
+	if err := decode.Decode(&data); err != nil {
+		log.Println("Parsing webhook data err:", err)
+		http.Error(w, "Invalid data", http.StatusBadRequest)
+		return
+	}
+
+	// Handle storing and aggregating data
+	s.messages.AddMessage(data)
+	s.aggregatedSentiments.AggregateSentiment(data)
+	s.dateDistributions.AggregateDateDistribution(data)
+
+	responseData := &ResponseData{
+		Messages: &s.messages,
+		Metrics: &ResponseMetrics{
+			AggregatedSentiments: &s.aggregatedSentiments,
+			DateDistributions:    &s.dateDistributions,
+		},
+	}
+
+	// Broadcast to WebSocket clients
+	s.broadcast(responseData)
+}
+
+func (s *Server) broadcast(data *ResponseData) {
 	for ws := range s.conns {
 		go func(ws *websocket.Conn) {
-			if err := ws.WriteMessage(websocket.TextMessage, message); err != nil {
-				fmt.Println("Broadcasting write message err:", err)
+			if err := ws.WriteJSON(data); err != nil {
+				log.Println("Broadcasting write message err:", err)
+				ws.Close()
+				return
 			}
 		}(ws)
 	}
@@ -134,9 +132,10 @@ func (s *Server) broadcast(message []byte) {
 
 func main() {
 	server := newServer()
-	server.messages = messages.NewMessagesMap()
+	server.messages = messages.NewMessagesStore()
 	server.aggregatedSentiments = metrics.NewAggregatedSentiment()
 	server.dateDistributions = metrics.NewDateDistribution()
+	http.HandleFunc("/webhook", server.handleWebhook)
 	http.HandleFunc("/websocket", server.handleWebsocket)
-	log.Fatal(http.ListenAndServe(":3001", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
