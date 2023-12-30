@@ -1,5 +1,7 @@
 package messages
 
+import "fmt"
+
 type MessagesStore []*MessageData
 
 type MessageData struct {
@@ -25,6 +27,13 @@ func NewMessagesStore() MessagesStore {
 	return messages
 }
 
-func (messages *MessagesStore) AddMessage(msg *MessageData) {
+func (messages *MessagesStore) AddMessage(msg *MessageData) error {
+	before := len(*messages)
+
 	*messages = append([]*MessageData{msg}, *messages...)
+
+	if curr := len(*messages); curr <= before {
+		return fmt.Errorf("Error adding new message to messages")
+	}
+	return nil
 }

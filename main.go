@@ -102,9 +102,21 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Handle storing and aggregating data
-	s.messages.AddMessage(data)
-	s.aggregatedSentiments.AggregateSentiment(data)
-	s.dateDistributions.AggregateDateDistribution(data)
+	if err := s.messages.AddMessage(data); err != nil {
+		log.Println("Add new message err:", err)
+		http.Error(w, "Message could not be added", http.StatusInternalServerError)
+		return
+	}
+	if err := s.aggregatedSentiments.AggregateSentiment(data); err != nil {
+		log.Println("Aggregating airline sentiment err:", err)
+		http.Error(w, "Could not aggregate airline sentiment", http.StatusInternalServerError)
+		return
+	}
+	if err := s.dateDistributions.AggregateDateDistribution(data); err != nil {
+		log.Println("Aggregating date distribution err:", err)
+		http.Error(w, "Could not aggregate date distribution", http.StatusInternalServerError)
+		return
+	}
 
 	responseData := &ResponseData{
 		Messages: &s.messages,
@@ -116,6 +128,12 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 
 	// Broadcast to WebSocket clients
 	s.broadcast(responseData)
+
+	resp, err := json.Marshal(map[string]bool{"successful": true})
+	if err != nil {
+		log.Println("Error making response confirmation", err)
+	}
+	w.Write(resp)
 }
 
 func (s *Server) broadcast(data *ResponseData) {

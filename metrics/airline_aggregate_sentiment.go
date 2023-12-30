@@ -1,6 +1,9 @@
 package metrics
 
-import "beehiveAI/messages"
+import (
+	"beehiveAI/messages"
+	"fmt"
+)
 
 type AirlineAggregatedSentiment map[string]struct {
 	Total    int `json:"total,omitempty"`
@@ -14,7 +17,7 @@ func NewAggregatedSentiment() AirlineAggregatedSentiment {
 }
 
 // map where key is airline with value of aggregated sentiment
-func (aggregated AirlineAggregatedSentiment) AggregateSentiment(msg *messages.MessageData) {
+func (aggregated AirlineAggregatedSentiment) AggregateSentiment(msg *messages.MessageData) error {
 	sentiment, ok := aggregated[msg.Airline]
 	if ok {
 		sentiment.Total += 1
@@ -46,4 +49,10 @@ func (aggregated AirlineAggregatedSentiment) AggregateSentiment(msg *messages.Me
 		break
 	}
 	aggregated[msg.Airline] = sentiment
+
+	_, okAdded := aggregated[msg.Airline]
+	if !okAdded {
+		return fmt.Errorf("Could not add new airline sentiment")
+	}
+	return nil
 }

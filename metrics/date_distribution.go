@@ -1,7 +1,6 @@
 package metrics
 
 import (
-	"log"
 	"time"
 
 	"beehiveAI/messages"
@@ -19,10 +18,10 @@ func NewDateDistribution() DateDistribution {
 }
 
 // map of tweet distribution by date formatted "YYYY-MM-DD" from UTC time
-func (distributions DateDistribution) AggregateDateDistribution(msg *messages.MessageData) {
+func (distributions DateDistribution) AggregateDateDistribution(msg *messages.MessageData) error {
 	timeObj, err := time.Parse(fullLayout, msg.TweetCreated)
 	if err != nil {
-		log.Println("time parsing err:", err, msg.TweetCreated)
+		return err
 	}
 
 	date := timeObj.UTC().Format(dateLayout)
@@ -32,4 +31,5 @@ func (distributions DateDistribution) AggregateDateDistribution(msg *messages.Me
 	} else {
 		distributions[date] = 1
 	}
+	return nil
 }
