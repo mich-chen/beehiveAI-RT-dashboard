@@ -3,21 +3,21 @@ package messages
 type MessagesStore []*MessageData
 
 type MessageData struct {
-	TweetId                   int    `json:"tweetId"`
-	AirlineSentiment          string `json:"airlineSentiment"`
-	AirlineSentimentConfident int    `json:"airlineSentimentConfidence"`
-	NegativeReason            string `json:"negativereason"`
-	NegativeReasonConfidence  int    `json:"negativereasonConfidence"`
-	Airline                   string `json:"airline"`
-	AirlineSentimentGold      string `json:"airlineSentimentGold"`
-	Name                      string `json:"name"`
-	NegativeReasonGold        string `json:"negativereasonGold"`
-	RetweetCount              int    `json:"retweetCount"`
-	Text                      string `json:"text"`
-	TweetCord                 string `json:"tweetCord"`
-	TweetCreated              string `json:"tweetCreated"`
-	TweetLocation             string `json:"tweetLocation"`
-	UserTimezone              string `json:"userTimezone"`
+	TweetId                   int    `json:"tweetId,omitempty"`
+	AirlineSentiment          string `json:"airlineSentiment,omitempty"`
+	AirlineSentimentConfident int    `json:"airlineSentimentConfidence,omitempty"`
+	NegativeReason            string `json:"negativereason,omitempty"`
+	NegativeReasonConfidence  int    `json:"negativereasonConfidence,omitempty"`
+	Airline                   string `json:"airline,omitempty"`
+	AirlineSentimentGold      string `json:"airlineSentimentGold,omitempty"`
+	Name                      string `json:"name,omitempty"`
+	NegativeReasonGold        string `json:"negativereasonGold,omitempty"`
+	RetweetCount              int    `json:"retweetCount,omitempty"`
+	Text                      string `json:"text,omitempty"`
+	TweetCord                 string `json:"tweetCord,omitempty"`
+	TweetCreated              string `json:"tweetCreated,omitempty"`
+	TweetLocation             string `json:"tweetLocation,omitempty"`
+	UserTimezone              string `json:"userTimezone,omitempty"`
 }
 
 func NewMessagesStore() MessagesStore {

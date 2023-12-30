@@ -3,10 +3,10 @@ package metrics
 import "beehiveAI/messages"
 
 type AirlineAggregatedSentiment map[string]struct {
-	Total    int `json:"total"`
-	Positive int `json:"positive"`
-	Negative int `json:"negative"`
-	Neutral  int `json:"neutral"`
+	Total    int `json:"total,omitempty"`
+	Positive int `json:"positive,omitempty"`
+	Negative int `json:"negative,omitempty"`
+	Neutral  int `json:"neutral,omitempty"`
 }
 
 func NewAggregatedSentiment() AirlineAggregatedSentiment {
@@ -20,10 +20,10 @@ func (aggregated AirlineAggregatedSentiment) AggregateSentiment(msg *messages.Me
 		sentiment.Total += 1
 	} else {
 		sentiment = struct {
-			Total    int `json:"total"`
-			Positive int `json:"positive"`
-			Negative int `json:"negative"`
-			Neutral  int `json:"neutral"`
+			Total    int `json:"total,omitempty"`
+			Positive int `json:"positive,omitempty"`
+			Negative int `json:"negative,omitempty"`
+			Neutral  int `json:"neutral,omitempty"`
 		}{
 			Total:    1,
 			Positive: 0,

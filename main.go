@@ -28,13 +28,13 @@ type Server struct {
 }
 
 type ResponseData struct {
-	Messages *messages.MessagesStore `json:"messages"`
-	Metrics  *ResponseMetrics        `json:"metrics"`
+	Messages *messages.MessagesStore `json:"messages,omitempty"`
+	Metrics  *ResponseMetrics        `json:"metrics,omitempty"`
 }
 
 type ResponseMetrics struct {
-	AggregatedSentiments *metrics.AirlineAggregatedSentiment `json:"aggregatedSentiments"`
-	DateDistributions    *metrics.DateDistribution           `json:"dateDistributions"`
+	AggregatedSentiments *metrics.AirlineAggregatedSentiment `json:"aggregatedSentiments,omitempty"`
+	DateDistributions    *metrics.DateDistribution           `json:"dateDistributions,omitempty"`
 }
 
 // initiate a new Server
