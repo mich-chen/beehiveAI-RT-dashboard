@@ -1,13 +1,6 @@
 package messages
 
-import (
-	"time"
-)
-
-type MessagesStore map[int]struct {
-	Data      *MessageData
-	Timestamp int64
-}
+type MessagesStore []*MessageData
 
 type MessageData struct {
 	TweetId                   int    `json:"tweetId"`
@@ -24,21 +17,14 @@ type MessageData struct {
 	TweetCord                 string `json:"tweetCord"`
 	TweetCreated              string `json:"tweetCreated"`
 	TweetLocation             string `json:"tweetLocation"`
-	UserTimezone              string `json:"userLocation"`
+	UserTimezone              string `json:"userTimezone"`
 }
 
-func NewMessagesMap() MessagesStore {
-	return make(MessagesStore)
+func NewMessagesStore() MessagesStore {
+	var messages MessagesStore
+	return messages
 }
 
-func (messages MessagesStore) AddMessage(msg *MessageData) {
-	// add new message and timestamp to message store
-	timestamp := time.Now().UnixNano()
-	messages[msg.TweetId] = struct {
-		Data      *MessageData
-		Timestamp int64
-	}{
-		Data:      msg,
-		Timestamp: timestamp,
-	}
+func (messages *MessagesStore) AddMessage(msg *MessageData) {
+	*messages = append([]*MessageData{msg}, *messages...)
 }
