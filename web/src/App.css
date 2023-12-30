@@ -1,0 +1,51 @@
+.App {
+  display: flex;
+  flex-direction: row;
+}
+
+.tweets-container {
+  /* Define dimensions for the scrollable area */
+  width: 25rem; /* Adjust as needed */
+  height: 42rem; /* Adjust as needed */
+
+  /* Enable overflow scrolling */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tweets-container ul {
+  width: 100%;
+}
+
+.tweet {
+  display: flex;
+  flex-direction: column;
+}
+
+.tweet p {
+  font-size: small;
+}
+
+.metrics-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metrics-widgets {
+  display: flex;
+  flex-direction: row;
+}
+
+.metric {
+
+}
+
+.sentiments-table {
+  overflow-y: auto;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
