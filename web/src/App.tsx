@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import Tweet from './components/Tweet';
 import AggregateTable from './components/AggregateTable';
-import TotalResponses from './components/TotalResponses';
+import CountWidget from './components/CountWidget';
 import DateDistribution from './components/DateDistribution';
+import Stack from '@mui/system/Stack';
 
 interface Message {
   tweetId: number;
@@ -48,10 +49,9 @@ function App() {
   const [dateDistribution, setDateDistribution] = useState<{ [key: string]: number }>({});
 
   const handleData = (data: WebsocketMessage) => {
-    // to optimize, implement a caching 
     setTweets(data.messages);
 
-    // Server sends updated object therefore do not need prevState
+    // Server sends updated object representing server's storage
     setAggregateSentiments(data.metrics.aggregatedSentiments);
     setDateDistribution(data.metrics.dateDistributions);
   }
@@ -92,6 +92,7 @@ function App() {
   return (
     <div className="App">
       <div className="tweets-container">
+        <h2>Tweets</h2>
         <ul>
           {tweets.map((tweet) => {
             return (
@@ -103,13 +104,18 @@ function App() {
       <div className="metrics-container">
         <h2>Tweet Message Dashboard Metrics</h2>
         <div className="metrics-widgets">
-          <TotalResponses total={tweets.length} />
-          
-          <AggregateTable data={aggregateSentiments} />
-          
-          <DateDistribution data={dateDistribution} />
+        <Stack spacing={{ xs: 2, sm: 2, md: 2 }}>
+          <Stack spacing={{ xs: 2 }} direction="row">
+            <CountWidget header={"Tweets Count"} count={tweets.length} />
+            <CountWidget header={"Airlines Count"} count={Object.keys(aggregateSentiments).length} />
+          </Stack>
+
+          <Stack spacing={{ xs: 2, sm: 2, md: 2 }} direction="row" useFlexGap flexWrap="wrap">
+            <AggregateTable data={aggregateSentiments} />
+            <DateDistribution data={dateDistribution} />
+          </Stack>
+        </Stack>
         </div>
-        
       </div>
     </div>
   );
