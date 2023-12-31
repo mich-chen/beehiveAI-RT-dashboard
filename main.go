@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/websocket"
 
 	"beehiveAI/messages"
@@ -39,6 +40,7 @@ type ResponseMetrics struct {
 }
 
 var mutex sync.Mutex
+var validate *validator.Validate
 
 // initiate a new Server
 func newServer() *Server {
@@ -105,6 +107,15 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 	if err := decode.Decode(&data); err != nil {
 		log.Println("Parsing webhook data err:", err)
 		http.Error(w, "Invalid data", http.StatusBadRequest)
+		mutex.Unlock()
+		return
+	}
+	// validate required fields
+	validate := validator.New()
+	if err := validate.Struct(data); err != nil {
+		log.Println("Invalid data, missing required fields", err)
+		http.Error(w, "Invalid data, missing required fields", http.StatusBadRequest)
+		mutex.Unlock()
 		return
 	}
 
@@ -112,16 +123,19 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 	if err := s.messages.AddMessage(data); err != nil {
 		log.Println("Add new message err:", err)
 		http.Error(w, "Message could not be added", http.StatusInternalServerError)
+		mutex.Unlock()
 		return
 	}
 	if err := s.aggregatedSentiments.AggregateSentiment(data); err != nil {
 		log.Println("Aggregating airline sentiment err:", err)
 		http.Error(w, "Could not aggregate airline sentiment", http.StatusInternalServerError)
+		mutex.Unlock()
 		return
 	}
 	if err := s.dateDistributions.AggregateDateDistribution(data); err != nil {
 		log.Println("Aggregating date distribution err:", err)
 		http.Error(w, "Could not aggregate date distribution", http.StatusInternalServerError)
+		mutex.Unlock()
 		return
 	}
 	mutex.Unlock()
