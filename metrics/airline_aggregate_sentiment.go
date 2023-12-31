@@ -6,10 +6,9 @@ import (
 )
 
 type AirlineAggregatedSentiment map[string]struct {
-	Total    int `json:"total,omitempty"`
-	Positive int `json:"positive,omitempty"`
-	Negative int `json:"negative,omitempty"`
-	Neutral  int `json:"neutral,omitempty"`
+	Positive int `json:"positive"`
+	Negative int `json:"negative"`
+	Neutral  int `json:"neutral"`
 }
 
 func NewAggregatedSentiment() AirlineAggregatedSentiment {
@@ -19,16 +18,12 @@ func NewAggregatedSentiment() AirlineAggregatedSentiment {
 // map where key is airline with value of aggregated sentiment
 func (aggregated AirlineAggregatedSentiment) AggregateSentiment(msg *messages.MessageData) error {
 	sentiment, ok := aggregated[msg.Airline]
-	if ok {
-		sentiment.Total += 1
-	} else {
+	if !ok {
 		sentiment = struct {
-			Total    int `json:"total,omitempty"`
-			Positive int `json:"positive,omitempty"`
-			Negative int `json:"negative,omitempty"`
-			Neutral  int `json:"neutral,omitempty"`
+			Positive int `json:"positive"`
+			Negative int `json:"negative"`
+			Neutral  int `json:"neutral"`
 		}{
-			Total:    1,
 			Positive: 0,
 			Negative: 0,
 			Neutral:  0,
