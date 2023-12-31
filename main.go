@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 
@@ -37,6 +38,8 @@ type ResponseMetrics struct {
 	DateDistributions    *metrics.DateDistribution           `json:"dateDistributions,omitempty"`
 }
 
+var mutex sync.Mutex
+
 // initiate a new Server
 func newServer() *Server {
 	return &Server{
@@ -45,7 +48,8 @@ func newServer() *Server {
 }
 
 func (s *Server) handleWebsocket(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil) // upgrade the connection from HTTP to websocket to create new connection
+	// upgrade the connection from HTTP to websocket to create new connection
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Upgrade err:", err)
 		return
@@ -54,26 +58,12 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, r *http.Request) {
 	log.Println("New incoming connection from client: ", conn.RemoteAddr())
 
 	// add new connection to Server struct
+	mutex.Lock()
 	s.conns[conn] = conn
+	mutex.Unlock()
 
-	// handle close and removing client connections
-	defer func(conn *websocket.Conn, server *Server) {
-		delete(server.conns, conn)
-	}(conn, s)
-	defer conn.Close()
-
-	// read messages
-	for {
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("Read message err:", err)
-			break
-		}
-
-		log.Println("/Websocket received message from client: ", message)
-	}
-
-	// broadcast current store of messages when new clients connect
+	// Send current store of data to any new client connections
+	mutex.Lock()
 	responseData := &ResponseData{
 		Messages: &s.messages,
 		Metrics: &ResponseMetrics{
@@ -82,7 +72,23 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	s.broadcast(responseData)
+	if err := conn.WriteJSON(responseData); err != nil {
+		log.Println("Broadcasting write message err:", err)
+		conn.Close()
+	}
+	mutex.Unlock()
+
+	// read for any client connection closures
+	for {
+		if _, _, err := conn.NextReader(); err != nil {
+			log.Println("Recived client close message --> removing connection")
+			mutex.Lock()
+			delete(s.conns, conn)
+			mutex.Unlock()
+			conn.Close()
+			break
+		}
+	}
 }
 
 func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
@@ -92,6 +98,7 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse incoming data
+	mutex.Lock()
 	var data *messages.MessageData
 	decode := json.NewDecoder(r.Body)
 	decode.DisallowUnknownFields()
@@ -117,6 +124,7 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not aggregate date distribution", http.StatusInternalServerError)
 		return
 	}
+	mutex.Unlock()
 
 	responseData := &ResponseData{
 		Messages: &s.messages,
@@ -129,21 +137,28 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 	// Broadcast to WebSocket clients
 	s.broadcast(responseData)
 
+	mutex.Lock()
 	resp, err := json.Marshal(map[string]bool{"successful": true})
 	if err != nil {
 		log.Println("Error making response confirmation", err)
 	}
+	mutex.Unlock()
+
 	w.Write(resp)
 }
 
 func (s *Server) broadcast(data *ResponseData) {
-	for ws := range s.conns {
-		go func(ws *websocket.Conn) {
-			if err := ws.WriteJSON(data); err != nil {
-				log.Println("Broadcasting write message err:", err)
-				ws.Close()
-			}
-		}(ws)
+	mutex.Lock()
+	clients := s.conns
+	mutex.Unlock()
+
+	for ws := range clients {
+		mutex.Lock()
+		if err := ws.WriteJSON(data); err != nil {
+			log.Println("Broadcasting write message err:", err)
+			ws.Close()
+		}
+		mutex.Unlock()
 	}
 }
 
