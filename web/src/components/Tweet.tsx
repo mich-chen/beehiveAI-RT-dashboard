@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 const Tweet: React.FC<{ name: string; text: string }> = ({ name, text }) => {
   const userName = '@'.concat(name);
   return (
-    <Card variant="outlined" sx={{ margin: 2 }}>
+    <Card sx={{ margin: 1 }}>
       <CardHeader title={userName} sx={{ backgroundColor: "#42a5f5" }}></CardHeader>
       <CardContent className="tweet">
         <Typography variant="body1">

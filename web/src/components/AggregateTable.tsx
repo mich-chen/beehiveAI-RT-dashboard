@@ -5,42 +5,48 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { AggregatedSentiments } from '../App';
-
-interface AggregatedData {
-  [key: string]: AggregatedSentiments
-}
+import TableContainer from '@mui/material/TableContainer';
+import Widget from './Widget';
 
 // FUTURE FOLLOWUP: 
 // -- Can improve the aggregate table to be a data grid from @mui/x-data-grid
 // -- dataGrid allows for additional functionalities such as filtering, sorting, etc
 
+interface AggregatedData {
+  [key: string]: AggregatedSentiments
+}
+
 const AggregateTable: React.FC<({ data: AggregatedData })> = ({ data }) => {
+  const header = "Airline Aggregate"
+  const content = data ? (
+  <TableContainer sx={{ maxHeight: 250, maxWidth: 450 }} >
+    <Table size="small" stickyHeader>
+    <TableHead>
+      <TableRow>
+      <TableCell>Airline</TableCell>
+      <TableCell>Positive</TableCell>
+      <TableCell>Negative</TableCell>
+      <TableCell>Neutral</TableCell>
+      </TableRow>
+    </TableHead>
+
+    <TableBody>
+      {Object.entries(data).map(([airline, val]) => (
+        <TableRow key={airline}>
+          <TableCell>{airline}</TableCell>
+          <TableCell>{val.positive}</TableCell>
+          <TableCell>{val.negative}</TableCell>
+          <TableCell>{val.neutral}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+</TableContainer>
+  ) : null
+
   return (
-    <div className="metric">
-      <h2>Airline Aggregate</h2>
-      {data ? <Table size="small" className="sentiments-table">
-        <TableHead>
-          <TableRow>
-          <TableCell>Airline</TableCell>
-          <TableCell>Positive</TableCell>
-          <TableCell>Negative</TableCell>
-          <TableCell>Neutral</TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody>
-          {Object.entries(data).map(([airline, val]) => (
-            <TableRow key={airline}>
-              <TableCell>{airline}</TableCell>
-              <TableCell>{val.positive}</TableCell>
-              <TableCell>{val.negative}</TableCell>
-              <TableCell>{val.neutral}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      : null}
-
+    <div className="metric" >
+      <Widget header={header} content={content} />
     </div>
   )
 }
