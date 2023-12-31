@@ -5,7 +5,7 @@ import "fmt"
 type MessagesStore []*MessageData
 
 type MessageData struct {
-	TweetId                   int    `json:"tweetId,omitempty"`
+	TweetId                   int    `json:"tweetId" validate:"required"`
 	AirlineSentiment          string `json:"airlineSentiment,omitempty"`
 	AirlineSentimentConfident int    `json:"airlineSentimentConfidence,omitempty"`
 	NegativeReason            string `json:"negativereason,omitempty"`
@@ -23,8 +23,9 @@ type MessageData struct {
 }
 
 func NewMessagesStore() MessagesStore {
-	var messages MessagesStore
-	return messages
+	// var messages MessagesStore
+	// return messages
+	return make([]*MessageData, 0)
 }
 
 func (messages *MessagesStore) AddMessage(msg *MessageData) error {
