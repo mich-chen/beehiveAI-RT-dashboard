@@ -1,8 +1,9 @@
 package metrics
 
 import (
-	"beehiveAI/messages"
 	"testing"
+
+	"github.com/mich-chen/beehiveAI-RT-dashboard/messages"
 )
 
 func TestNewAggregatedSentiment(t *testing.T) {

@@ -3,7 +3,7 @@ package metrics
 import (
 	"testing"
 
-	"beehiveAI/messages"
+	"github.com/mich-chen/beehiveAI-RT-dashboard/messages"
 )
 
 func TestNewDateDistribution(t *testing.T) {

@@ -9,8 +9,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/websocket"
 
-	"beehiveAI/messages"
-	"beehiveAI/metrics"
+	"github.com/mich-chen/beehiveAI-RT-dashboard/messages"
+	"github.com/mich-chen/beehiveAI-RT-dashboard/metrics"
 )
 
 var upgrader = websocket.Upgrader{

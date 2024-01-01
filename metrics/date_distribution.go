@@ -3,7 +3,7 @@ package metrics
 import (
 	"time"
 
-	"beehiveAI/messages"
+	"github.com/mich-chen/beehiveAI-RT-dashboard/messages"
 )
 
 type DateDistribution map[string]int

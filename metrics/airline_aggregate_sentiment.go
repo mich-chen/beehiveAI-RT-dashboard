@@ -1,8 +1,9 @@
 package metrics
 
 import (
-	"beehiveAI/messages"
 	"fmt"
+
+	"github.com/mich-chen/beehiveAI-RT-dashboard/messages"
 )
 
 type AirlineAggregatedSentiment map[string]struct {
