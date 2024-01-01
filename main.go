@@ -45,7 +45,10 @@ var validate *validator.Validate
 // initiate a new Server
 func newServer() *Server {
 	return &Server{
-		conns: make(map[*websocket.Conn]*websocket.Conn),
+		conns:                make(map[*websocket.Conn]*websocket.Conn),
+		messages:             messages.NewMessagesStore(),
+		aggregatedSentiments: metrics.NewAggregatedSentiment(),
+		dateDistributions:    metrics.NewDateDistribution(),
 	}
 }
 
@@ -110,6 +113,7 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 		mutex.Unlock()
 		return
 	}
+	defer r.Body.Close()
 	// validate required fields
 	validate := validator.New()
 	if err := validate.Struct(data); err != nil {
@@ -178,9 +182,6 @@ func (s *Server) broadcast(data *ResponseData) {
 
 func main() {
 	server := newServer()
-	server.messages = messages.NewMessagesStore()
-	server.aggregatedSentiments = metrics.NewAggregatedSentiment()
-	server.dateDistributions = metrics.NewDateDistribution()
 	http.HandleFunc("/webhook", server.handleWebhook)
 	http.HandleFunc("/websocket", server.handleWebsocket)
 	log.Fatal(http.ListenAndServe(":8080", nil))
