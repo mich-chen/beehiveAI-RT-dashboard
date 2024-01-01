@@ -17,7 +17,7 @@ type MessageData struct {
 	RetweetCount              int    `json:"retweetCount,omitempty"`
 	Text                      string `json:"text,omitempty"`
 	TweetCord                 string `json:"tweetCord,omitempty"`
-	TweetCreated              string `json:"tweetCreated,omitempty"`
+	TweetCreated              string `json:"tweetCreated" validate:"required"`
 	TweetLocation             string `json:"tweetLocation,omitempty"`
 	UserTimezone              string `json:"userTimezone,omitempty"`
 }
