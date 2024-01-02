@@ -4,7 +4,7 @@ import Widget from './Widget';
 
 const CountWidget: React.FC<{ header: string; count: number }> = ({ header, count }) => {
   const content = (
-    <Typography variant="h3">
+    <Typography variant="h3" data-testid="count">
       {count}
     </Typography>
   )

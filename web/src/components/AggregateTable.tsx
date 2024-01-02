@@ -20,7 +20,7 @@ const AggregateTable: React.FC<({ data: AggregatedData })> = ({ data }) => {
   const header = "Airline Aggregate"
   const content = data ? (
   <TableContainer sx={{ maxHeight: 250, maxWidth: 450 }} >
-    <Table size="small" stickyHeader>
+    <Table size="small" stickyHeader data-testid="airline-aggregate-table">
     <TableHead>
       <TableRow>
       <TableCell>Airline</TableCell>

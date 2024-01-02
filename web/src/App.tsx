@@ -86,22 +86,19 @@ function App() {
     return () => connection.current?.close();
   },[])
 
-  console.log("aggregated sentiments", aggregateSentiments);
-  console.log("date distribution", dateDistribution);
-
   return (
     <div className="App">
-      <div className="tweets-container">
+      <div className="tweets-container" data-testid="tweets-container">
         <h2>Tweets</h2>
         <ul>
           {tweets.map((tweet) => {
             return (
-              <Tweet name={tweet.name} text={tweet.text} />
+              <Tweet name={tweet.name} text={tweet.text} key={tweet.tweetId}/>
             )
           })}
         </ul>
       </div>
-      <div className="metrics-container">
+      <div className="metrics-container" data-testid="metrics-container">
         <h2>Tweet Message Dashboard Metrics</h2>
         <div className="metrics-widgets">
         <Stack spacing={{ xs: 2, sm: 2, md: 2 }}>
