@@ -4,7 +4,7 @@ import Tweet from './components/Tweet';
 import AggregateTable from './components/AggregateTable';
 import CountWidget from './components/CountWidget';
 import DateDistribution from './components/DateDistribution';
-import Stack from '@mui/system/Stack';
+import Stack from '@mui/material/Stack';
 
 interface Message {
   tweetId: number;

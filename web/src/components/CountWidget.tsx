@@ -11,7 +11,7 @@ const CountWidget: React.FC<{ header: string; count: number }> = ({ header, coun
 
   return (
     <div className="metric">
-      <Widget header={header} content={content} />
+      <Widget header={header} content={content} sx={{ textAlign: "center" }} />
     </div>
   )
 }
