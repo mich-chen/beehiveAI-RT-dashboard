@@ -19,21 +19,21 @@ func TestAddMessage(t *testing.T) {
 
 	// Test messages vars
 	validMessage := &MessageData{
-		TweetId:                   570306133677760513,
-		AirlineSentiment:          "neutral",
-		AirlineSentimentConfident: 1,
-		NegativeReason:            "",
-		NegativeReasonConfidence:  0,
-		Airline:                   "Virgin America",
-		AirlineSentimentGold:      "",
-		Name:                      "cairdin",
-		NegativeReasonGold:        "",
-		RetweetCount:              0,
-		Text:                      "@VirginAmerica What @dhepburn said.",
-		TweetCord:                 "[40.74804263, -73.99295302]",
-		TweetCreated:              "2015-02-24 11:35:52 -0800",
-		TweetLocation:             "",
-		UserTimezone:              "Eastern Time (US & Canada)",
+		TweetId:                    570306133677760513,
+		AirlineSentiment:           "neutral",
+		AirlineSentimentConfidence: 1,
+		NegativeReason:             "",
+		NegativeReasonConfidence:   0,
+		Airline:                    "Virgin America",
+		AirlineSentimentGold:       "",
+		Name:                       "cairdin",
+		NegativeReasonGold:         "",
+		RetweetCount:               0,
+		Text:                       "@VirginAmerica What @dhepburn said.",
+		TweetCoord:                 "[40.74804263, -73.99295302]",
+		TweetCreated:               "2015-02-24 11:35:52 -0800",
+		TweetLocation:              "",
+		UserTimezone:               "Eastern Time (US & Canada)",
 	}
 
 	// Test successful addition

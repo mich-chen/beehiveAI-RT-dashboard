@@ -80,7 +80,7 @@ func TestHandleWebhook(t *testing.T) {
 		{
 			"tweetId": 5323041546422352922,
 			"airlineSentiment": "positive",
-			"airlineSentimentConfidence": 1,
+			"airlineSentimentConfidence": 1.0,
 			"negativereason": null,
 			"negativereasonConfidence": null,
 			"airline": "Delta",
@@ -89,7 +89,7 @@ func TestHandleWebhook(t *testing.T) {
 			"negativereasonGold": null,
 			"retweetCount": 0,
 			"text": "@VirginAmer we expect a choppy landing in NYC due to some gusty winds w/a temperature of about 5 degrees &amp; w/the windchill -8",
-			"tweetCord": "[40.74804263, -73.99295302]",
+			"tweetCoord": "[40.74804263, -73.99295302]",
 			"tweetCreated": "2003-01-11 11:35:52 -0800",
 			"tweetLocation": "California",
 			"userTimezone": "Pacific Time (US & Canada)"

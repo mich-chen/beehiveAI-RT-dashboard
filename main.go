@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -109,7 +110,8 @@ func (s *Server) handleWebhook(w http.ResponseWriter, r *http.Request) {
 	decode.DisallowUnknownFields()
 	if err := decode.Decode(&data); err != nil {
 		log.Println("Parsing webhook data err:", err)
-		http.Error(w, "Invalid data", http.StatusBadRequest)
+		errMsg := fmt.Sprint("Parsing webhook data err:", err)
+		http.Error(w, errMsg, http.StatusBadRequest)
 		mutex.Unlock()
 		return
 	}

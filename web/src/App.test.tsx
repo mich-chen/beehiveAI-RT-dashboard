@@ -13,7 +13,7 @@ const mockMessage = {
           "airline": "Delta",
           "name": "test",
           "text": "@testing weather conditions",
-          "tweetCord": "[40.74804263, -73.99295302]",
+          "tweetCoord": "[40.74804263, -73.99295302]",
           "tweetCreated": "2024-01-01 11:35:52 -0800",
           "tweetLocation": "California",
           "userTimezone": "Pacific Time (US \u0026 Canada)"
